@@ -4,8 +4,8 @@ from pickle import HIGHEST_PROTOCOL
 
 import torch
 
-from analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE, OVERWRITE_ANALYSIS_DATA
-from basic_utils.io import create_dir, delete_file_or_dir, save_json
+from .analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE, OVERWRITE_ANALYSIS_DATA
+from .basic_utils.io import create_dir, delete_file_or_dir, save_json
 
 ANALYSIS_CACHE_DYNAMIC = []  # used for recording dynamic information like model inputs across different batches
 ANALYSIS_CACHE_STATIC = {}  # used for recording static information like model weights
