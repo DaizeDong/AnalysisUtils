@@ -1,10 +1,10 @@
 # Analysis Utils for Model Evaluation
 
-A plug-and-play analysis module containing global storage & environments for fast integration into various evaluation frameworks.
+A plug-and-play analysis module containing logic for global storage & environments, designed for fast integration into various evaluation frameworks.
 
 ## Usage
 
-Register the repository as a submodule:
+Install the repository in the editable mode:
 
 ```bash
 git clone --recursive https://github.com/DaizeDong/AnalysisUtils.git
@@ -12,23 +12,22 @@ cd AnalysisUtils
 pip install -e . --no-build-isolation
 ```
 
-Set system variables to activate the analysis module:
+Set system variables to activate the analysis module before launching:
 
 ```bash
-export ANALYSIS_TYPE="weights,inputs,outputs"
-export ANALYSIS_SAVE_DIR="XXXXXXXXX"
-export OVERWRITE_ANALYSIS_DATA="1"  # optional
+export ANALYSIS_TYPE="weights,inputs,outputs" # [required] will be converted into a str list if not empty (the analysis is enabled as long as the name `ANALYSIS_TYPE` is defined)
+export ANALYSIS_SAVE_DIR="XXXXXXXXX"          # [required] path to save the analysis results
+export OVERWRITE_ANALYSIS_DATA="1"            # [optional] default is "0" (not overwrite)
 ```
 
 Change the code to use the analysis module:
 
 - Initialize at the entry point.
-- Record information during inference.
-- Save results when done.
+- Record information during forward.
+- Save results when finished.
 
 ```python
 import torch
-import analysis_utils
 from analysis_utils import ANALYSIS_TYPE, ANALYSIS_CACHE_STATIC, ANALYSIS_CACHE_DYNAMIC, save_analysis_cache
 
 # load model
@@ -51,5 +50,6 @@ for _ in range(100):
     if "outputs" in ANALYSIS_TYPE and "outputs" not in ANALYSIS_CACHE_DYNAMIC[-1]:
         ANALYSIS_CACHE_DYNAMIC[-1]["outputs"] = inputs.cpu()
 
+# save results to `ANALYSIS_SAVE_DIR`
 save_analysis_cache()
 ```
