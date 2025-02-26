@@ -18,6 +18,7 @@ Set system variables to activate the analysis module before launching:
 export ANALYSIS_TYPE="weights,inputs,outputs" # [required] will be converted into a str list if not empty (the analysis is enabled as long as the name `ANALYSIS_TYPE` is defined)
 export ANALYSIS_SAVE_DIR="XXXXXXXXX"          # [required] path to save the analysis results
 export OVERWRITE_ANALYSIS_DATA="1"            # [optional] default is "0" (not overwrite)
+export ENVIRON_SAVE_DIR="XXXXXXXXX"           # [optional] whether to save the system environs for debugging
 ```
 
 Change the code to use the analysis module:
