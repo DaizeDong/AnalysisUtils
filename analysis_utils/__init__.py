@@ -2,9 +2,7 @@ import os
 import re
 from collections import OrderedDict
 
-from .analysis_cache import ANALYSIS_CACHE_DYNAMIC, ANALYSIS_CACHE_STATIC
-from .analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE
-from basic_utils.io import create_dir, save_json
+from analysis_utils.basic_utils.io import create_dir, save_json
 
 # system variables
 try:

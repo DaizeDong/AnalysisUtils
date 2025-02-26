@@ -7,9 +7,9 @@ A plug-and-play analysis module containing global storage & environments for fas
 Register the repository as a submodule:
 
 ```bash
-git submodule add https://github.com/DaizeDong/AnalysisUtils.git analysis_utils
-cd analysis_utils
-pip install -r requirements.txt
+git clone --recursive https://github.com/DaizeDong/AnalysisUtils.git
+cd AnalysisUtils
+pip install -e .
 ```
 
 Set system variables to activate the analysis module:
