@@ -9,7 +9,7 @@ Register the repository as a submodule:
 ```bash
 git clone --recursive https://github.com/DaizeDong/AnalysisUtils.git
 cd AnalysisUtils
-pip install -e .
+pip install -e . --no-build-isolation
 ```
 
 Set system variables to activate the analysis module:
