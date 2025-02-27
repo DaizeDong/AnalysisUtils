@@ -4,7 +4,7 @@ from pickle import HIGHEST_PROTOCOL
 
 import torch
 
-from .analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE, OVERWRITE_ANALYSIS_DATA
+from .analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE, OVERWRITE_ANALYSIS_DATA, PID
 from .basic_utils.io import create_dir, delete_file_or_dir, save_json
 
 ANALYSIS_CACHE_DYNAMIC = []  # used for recording dynamic information like model inputs across different batches
@@ -23,21 +23,21 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True):
 
     if ANALYSIS_ENABLED:  # 🔍
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
-            create_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{os.getpid()}"), suppress_errors=True)
-            torch.save(ANALYSIS_CACHE_DYNAMIC, os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{os.getpid()}", f"{ANALYSIS_CACHE_BATCH_ID[0]}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
+            create_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{PID}"), suppress_errors=True)
+            torch.save(ANALYSIS_CACHE_DYNAMIC, os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{PID}", f"{ANALYSIS_CACHE_BATCH_ID[0]}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
             if reset_cache:
                 ANALYSIS_CACHE_DYNAMIC.clear()
         else:
-            print("Skip saving the ANALYSIS_CACHE_DYNAMIC as it is empty.")
+            print(f"[{PID}] Skip saving the ANALYSIS_CACHE_DYNAMIC as it is empty.")
 
         if save_static:
             if len(ANALYSIS_CACHE_STATIC) > 0:
-                create_dir(os.path.join(ANALYSIS_SAVE_DIR, "static", f"{os.getpid()}"), suppress_errors=True)
-                torch.save(ANALYSIS_CACHE_STATIC, os.path.join(ANALYSIS_SAVE_DIR, "static", f"{os.getpid()}", f"{ANALYSIS_CACHE_BATCH_ID[0]}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
+                create_dir(os.path.join(ANALYSIS_SAVE_DIR, "static", f"{PID}"), suppress_errors=True)
+                torch.save(ANALYSIS_CACHE_STATIC, os.path.join(ANALYSIS_SAVE_DIR, "static", f"{PID}", f"{ANALYSIS_CACHE_BATCH_ID[0]}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
                 if reset_cache:
                     ANALYSIS_CACHE_STATIC.clear()
             else:
-                print("Skip saving the ANALYSIS_CACHE_STATIC as it is empty.")
+                print(f"[{PID}] Skip saving the ANALYSIS_CACHE_STATIC as it is empty.")
 
         ANALYSIS_CACHE_BATCH_ID[0] += 1
 
@@ -50,7 +50,7 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True):
             os.path.join(ANALYSIS_SAVE_DIR, "info.json"),
             indent=4,
         )
-        print(f"Analysis cache successfully saved to {ANALYSIS_SAVE_DIR}.")
+        print(f"[{PID}] Analysis cache successfully saved to {ANALYSIS_SAVE_DIR}.")
 
 
 def save_analysis_cache():
@@ -60,15 +60,15 @@ def save_analysis_cache():
     if ANALYSIS_ENABLED:  # 🔍
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
             create_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic"), suppress_errors=True)
-            torch.save(ANALYSIS_CACHE_DYNAMIC, os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{os.getpid()}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
+            torch.save(ANALYSIS_CACHE_DYNAMIC, os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{PID}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
         else:
-            print("Skip saving the ANALYSIS_CACHE_DYNAMIC as it is empty.")
+            print(f"[{PID}] Skip saving the ANALYSIS_CACHE_DYNAMIC as it is empty.")
 
         if len(ANALYSIS_CACHE_STATIC) > 0:
             create_dir(os.path.join(ANALYSIS_SAVE_DIR, "static"), suppress_errors=True)
-            torch.save(ANALYSIS_CACHE_STATIC, os.path.join(ANALYSIS_SAVE_DIR, "static", f"{os.getpid()}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
+            torch.save(ANALYSIS_CACHE_STATIC, os.path.join(ANALYSIS_SAVE_DIR, "static", f"{PID}.pt"), pickle_protocol=HIGHEST_PROTOCOL)
         else:
-            print("Skip saving the ANALYSIS_CACHE_STATIC as it is empty.")
+            print(f"[{PID}] Skip saving the ANALYSIS_CACHE_STATIC as it is empty.")
 
         save_json(
             {
@@ -79,4 +79,4 @@ def save_analysis_cache():
             os.path.join(ANALYSIS_SAVE_DIR, "info.json"),
             indent=4,
         )
-        print(f"Analysis cache successfully saved to {ANALYSIS_SAVE_DIR}.")
+        print(f"[{PID}] Analysis cache successfully saved to {ANALYSIS_SAVE_DIR}.")
