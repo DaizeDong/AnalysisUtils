@@ -9,6 +9,7 @@ try:
     if "ENVIRON_SAVE_DIR" in os.environ:
         save_dir = os.path.join(os.environ['ENVIRON_SAVE_DIR'], "environs")
         save_file = os.path.join(save_dir, f"{PID}.json")
+        delete_file_or_dir(save_dir, suppress_errors=True)  # remove old results
         create_dir(save_dir)
         save_json(
             OrderedDict({key: os.environ[key] for key in sorted(os.environ)}),
