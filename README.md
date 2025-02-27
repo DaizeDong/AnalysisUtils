@@ -49,7 +49,7 @@ for _ in range(100):
         ANALYSIS_CACHE_DYNAMIC[-1]["inputs"] = inputs.cpu()
 
     if "outputs" in ANALYSIS_TYPE and "outputs" not in ANALYSIS_CACHE_DYNAMIC[-1]:
-        ANALYSIS_CACHE_DYNAMIC[-1]["outputs"] = inputs.cpu()
+        ANALYSIS_CACHE_DYNAMIC[-1]["outputs"] = outputs.cpu()
 
 # save results to `ANALYSIS_SAVE_DIR`
 save_analysis_cache()
