@@ -64,7 +64,7 @@ def save_analysis_cache():
     if ANALYSIS_ENABLED:  # 🔍
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "dynamic")
-            save_file = os.path.join(save_dir, f"{PID}")
+            save_file = os.path.join(save_dir, f"{PID}.pt")
             create_dir(save_dir, suppress_errors=True)
             torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
             print(f"[{PID}] Dynamic cache successfully saved to {save_file}.")
@@ -73,7 +73,7 @@ def save_analysis_cache():
 
         if len(ANALYSIS_CACHE_STATIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "static")
-            save_file = os.path.join(save_dir, f"{PID}")
+            save_file = os.path.join(save_dir, f"{PID}.pt")
             create_dir(save_dir, suppress_errors=True)
             torch.save(ANALYSIS_CACHE_STATIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
             print(f"[{PID}] Static cache successfully saved to {save_file}.")
