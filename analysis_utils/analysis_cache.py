@@ -10,7 +10,8 @@ from .basic_utils.operations.operation_tensor import concat_tensors
 
 ANALYSIS_CACHE_DYNAMIC = []  # used for recording dynamic information like model inputs across different batches
 ANALYSIS_CACHE_STATIC = {}  # used for recording static information like model weights
-ANALYSIS_CACHE_BATCH_ID = [0]  # used for saving cache at sample level (save after each forward)
+ANALYSIS_CACHE_BATCH_ID = 0  # used for saving cache at sample level (save after each forward)
+ANALYSIS_TOKEN_NUM = 0  # used for recording the total number of tokens processed during analysis
 
 if ANALYSIS_SAVE_DIR is not None and OVERWRITE_ANALYSIS_DATA:
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic"), suppress_errors=True)  # remove old results
