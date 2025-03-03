@@ -1,7 +1,8 @@
 import os
-import torch
 from datetime import datetime
 from pickle import HIGHEST_PROTOCOL
+
+import torch
 from tqdm import tqdm
 
 from .analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE, OVERWRITE_ANALYSIS_DATA, PID
@@ -16,7 +17,7 @@ ANALYSIS_TOKEN_NUM = 0  # used for recording the total number of tokens processe
 if ANALYSIS_SAVE_DIR is not None and OVERWRITE_ANALYSIS_DATA:
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic"), suppress_errors=True)  # remove old results
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "static"), suppress_errors=True)  # remove old results
-    print(f"Removed old results in {ANALYSIS_SAVE_DIR}.")
+    print(f"[{PID}] Removed old cache results in {ANALYSIS_SAVE_DIR}.")
 
 
 def compress_tensors(tensor_list, dim=0):
@@ -94,7 +95,7 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True, compres
                 torch.save(ANALYSIS_CACHE_STATIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                 if reset_cache:
                     ANALYSIS_CACHE_STATIC.clear()
-                print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} static cache successfully saved to {save_file}.")
+                print(f"[{PID}] Total {len(ANALYSIS_CACHE_STATIC)} static cache successfully saved to {save_file}.")
             else:
                 print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_STATIC` as it is empty.")
 
@@ -130,7 +131,7 @@ def save_analysis_cache(compress=False):
             save_file = os.path.join(save_dir, f"{PID}.pt")
             create_dir(save_dir, suppress_errors=True)
             torch.save(ANALYSIS_CACHE_STATIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
-            print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} static cache successfully saved to {save_file}.")
+            print(f"[{PID}] Total {len(ANALYSIS_CACHE_STATIC)} static cache successfully saved to {save_file}.")
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_STATIC` as it is empty.")
 
