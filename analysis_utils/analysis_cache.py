@@ -1,11 +1,12 @@
 import os
+import torch
 from datetime import datetime
 from pickle import HIGHEST_PROTOCOL
-
-import torch
+from tqdm import tqdm
 
 from .analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE, OVERWRITE_ANALYSIS_DATA, PID
 from .basic_utils.io import create_dir, delete_file_or_dir, save_json
+from .basic_utils.operations.operation_tensor import concat_tensors
 
 ANALYSIS_CACHE_DYNAMIC = []  # used for recording dynamic information like model inputs across different batches
 ANALYSIS_CACHE_STATIC = {}  # used for recording static information like model weights
@@ -29,7 +30,7 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True):
             torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
             if reset_cache:
                 ANALYSIS_CACHE_DYNAMIC.clear()
-            print(f"[{PID}] Dynamic cache successfully saved to {save_file}.")
+            print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty.")
 
@@ -41,7 +42,7 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True):
                 torch.save(ANALYSIS_CACHE_STATIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                 if reset_cache:
                     ANALYSIS_CACHE_STATIC.clear()
-                print(f"[{PID}] Static cache successfully saved to {save_file}.")
+                print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} static cache successfully saved to {save_file}.")
             else:
                 print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_STATIC` as it is empty.")
 
@@ -57,7 +58,7 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True):
         print(f"[{PID}] Analysis json successfully saved to {os.path.join(ANALYSIS_SAVE_DIR, 'info.json')}.")
 
 
-def save_analysis_cache():
+def save_analysis_cache(compress=False):
     # print("ANALYSIS_CACHE_DYNAMIC:", ANALYSIS_CACHE_DYNAMIC)
     # print("ANALYSIS_CACHE_STATIC:", ANALYSIS_CACHE_STATIC)
 
@@ -66,8 +67,11 @@ def save_analysis_cache():
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "dynamic")
             save_file = os.path.join(save_dir, f"{PID}.pt")
             create_dir(save_dir, suppress_errors=True)
-            torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
-            print(f"[{PID}] Dynamic cache successfully saved to {save_file}.")
+            if compress:
+                torch.save([v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)], save_file, pickle_protocol=HIGHEST_PROTOCOL)
+            else:
+                torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
+            print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty.")
 
@@ -76,7 +80,7 @@ def save_analysis_cache():
             save_file = os.path.join(save_dir, f"{PID}.pt")
             create_dir(save_dir, suppress_errors=True)
             torch.save(ANALYSIS_CACHE_STATIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
-            print(f"[{PID}] Static cache successfully saved to {save_file}.")
+            print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} static cache successfully saved to {save_file}.")
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_STATIC` as it is empty.")
 
@@ -90,3 +94,52 @@ def save_analysis_cache():
             indent=4,
         )
         print(f"[{PID}] Analysis json successfully saved to {os.path.join(ANALYSIS_SAVE_DIR, 'info.json')}.")
+
+
+def compress_tensors(tensor_list, dim=0):
+    """
+    Process a nested structure of tensors, yielding concatenated tensors in a memory-efficient way.
+
+    Rules:
+    - Skip None values in the list.
+    - If tensors have dim[0] = 1, merge consecutive ones into a single tensor.
+    - If tensor dim[0] > 1, yield it as is.
+    - If the structure is dict/list, preserve its structure while applying the above rules.
+
+    Args:
+        tensor_list (list): Nested structure (list/dict of tensors).
+        dim (int): Dimension along which to concatenate tensors.
+
+    Yields:
+        The processed tensor structure.
+    """
+
+    def get_size(tensor, dim=0):
+        if tensor is None:
+            return 0
+        elif isinstance(tensor, torch.Tensor):
+            return tensor.size(dim)
+        elif isinstance(tensor, dict):
+            return get_size(next(iter(tensor.values())), dim)
+        elif isinstance(tensor, list):
+            return get_size(tensor[0], dim)
+        else:
+            raise TypeError(f"Unsupported input type: {type(tensor)}")
+
+    buffer = []
+
+    for element in tqdm(tensor_list, desc="Compressing tensors"):
+        if get_size(element, dim) == 0:
+            continue
+
+        if get_size(element, dim) == 1:
+            buffer.append(element)
+        else:
+            yield concat_tensors(buffer, dim=dim, strict=False)
+            buffer = []
+
+        if get_size(element, dim) > 1:
+            yield element
+
+    if buffer:
+        yield concat_tensors(buffer, dim=dim, strict=False)  # remaining `size=1` tensors
