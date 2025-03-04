@@ -60,14 +60,14 @@ def compress_tensors(tensor_list, dim=0):
         if get_tensor_size(element, dim) == 1:
             buffer.append(element)
         else:
-            yield concat_tensors(buffer, dim=dim, strict=False)
+            yield concat_tensors(buffer, dim=dim, auto_reshape=True, strict=False)
             buffer = []
 
         if get_tensor_size(element, dim) > 1:
             yield element
 
     if buffer:
-        yield concat_tensors(buffer, dim=dim, strict=False)  # remaining `size=1` tensors
+        yield concat_tensors(buffer, dim=dim, auto_reshape=True, strict=False)  # remaining `size=1` tensors
 
 
 def save_analysis_cache_single_batch(save_static=True, reset_cache=True, compress=False):
@@ -78,12 +78,15 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True, compres
             save_file = os.path.join(save_dir, f"{ANALYSIS_CACHE_BATCH_ID}.pt")
             create_dir(save_dir, suppress_errors=True)
             if compress:
-                torch.save([v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)], save_file, pickle_protocol=HIGHEST_PROTOCOL)
+                compressed_tensors = [v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)]
+                print(f"[{PID}] Reduced the number of tensors from {len(ANALYSIS_CACHE_DYNAMIC)} to {len(compressed_tensors)} by compression.")
+                torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
+                print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
             else:
                 torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
+                print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
             if reset_cache:
                 ANALYSIS_CACHE_DYNAMIC.clear()
-            print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty.")
 
@@ -119,10 +122,13 @@ def save_analysis_cache(compress=False):
             save_file = os.path.join(save_dir, f"{PID}.pt")
             create_dir(save_dir, suppress_errors=True)
             if compress:
-                torch.save([v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)], save_file, pickle_protocol=HIGHEST_PROTOCOL)
+                compressed_tensors = [v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)]
+                print(f"[{PID}] Reduced the number of tensors from {len(ANALYSIS_CACHE_DYNAMIC)} to {len(compressed_tensors)} by compression.")
+                torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
+                print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
             else:
                 torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
-            print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
+                print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty.")
 
