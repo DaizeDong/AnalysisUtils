@@ -48,7 +48,7 @@ def compress_tensors(tensor_list, dim=0):
             return get_tensor_size(next(iter(value.values())), dim)
         elif isinstance(value, list):
             return get_tensor_size(value[0], dim)
-        else:
+        else:  # unsupported types
             return -1
 
     buffer = []
@@ -59,11 +59,12 @@ def compress_tensors(tensor_list, dim=0):
 
         if get_tensor_size(element, dim) == 1:
             buffer.append(element)
-        else:
-            yield concat_tensors(buffer, dim=dim, auto_reshape=True, strict=False)
-            buffer = []
-
-        if get_tensor_size(element, dim) > 1:
+        else:  # meet a tensor with size > 1
+            # yield the buffer
+            if buffer:
+                yield concat_tensors(buffer, dim=dim, auto_reshape=True, strict=False)
+                buffer = []
+            # yield the tensor
             yield element
 
     if buffer:
