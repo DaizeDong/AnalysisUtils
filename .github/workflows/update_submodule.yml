@@ -1,0 +1,24 @@
+name: Auto Update Submodule
+
+on:
+  repository_dispatch:
+    types: [update_submodule]
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Force Update Submodule to Latest Commit
+        run: |
+          git submodule init
+          git submodule update --remote --force
+          git submodule foreach --recursive bash -c 'git fetch origin main && git reset --hard origin/main'
+          git add .
+          git commit -m "($(date +"%Y-%m-%d %H:%M:%S")) Auto-update submodules" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"
