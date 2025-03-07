@@ -1,8 +1,8 @@
 # Analysis Utils for Model Evaluation
 
-A plug-and-play analysis module containing logic for global storage & environments, designed for fast integration into various evaluation frameworks.
+A plug-and-play analysis module for global data and environments storage, designed for fast integration into various evaluation frameworks.
 
-## Usage
+## Installation
 
 Install the repository in the editable mode:
 
@@ -12,16 +12,9 @@ cd AnalysisUtils
 pip install -e . --no-build-isolation
 ```
 
-Set system variables to activate the analysis module before launching:
+## Usage
 
-```bash
-export ANALYSIS_TYPE="weights,inputs,outputs" # [required] will be converted into a str list if not empty (the analysis is enabled as long as the name `ANALYSIS_TYPE` is defined)
-export ANALYSIS_SAVE_DIR="XXXXXXXXX"          # [required] path to save the analysis results
-export OVERWRITE_ANALYSIS_DATA="1"            # [optional] default is "0" (not overwrite)
-export ENVIRON_SAVE_DIR="XXXXXXXXX"           # [optional] whether to save the system environs for debugging
-```
-
-Change the code to use the analysis module:
+incorporate the analysis module into the code:
 
 - Initialize at the entry point.
 - Record information during forward.
@@ -46,11 +39,26 @@ for _ in range(100):
     outputs = model(inputs)
 
     if "inputs" in ANALYSIS_TYPE and "inputs" not in ANALYSIS_CACHE_DYNAMIC[-1]:
-        ANALYSIS_CACHE_DYNAMIC[-1]["inputs"] = inputs.cpu()
+        ANALYSIS_CACHE_DYNAMIC[-1]["inputs"] = inputs.clone().cpu()
 
     if "outputs" in ANALYSIS_TYPE and "outputs" not in ANALYSIS_CACHE_DYNAMIC[-1]:
-        ANALYSIS_CACHE_DYNAMIC[-1]["outputs"] = outputs.cpu()
+        ANALYSIS_CACHE_DYNAMIC[-1]["outputs"] = outputs.clone().cpu()
 
 # save results to `ANALYSIS_SAVE_DIR`
-save_analysis_cache()
+save_analysis_cache(compress=True)
+```
+
+Set system variables to activate the analysis module before launching:
+
+```bash
+export ANALYSIS_TYPE="weights,inputs,outputs" # [required] will be converted into a str list if not empty (the analysis is enabled as long as the name `ANALYSIS_TYPE` is defined)
+export ANALYSIS_SAVE_DIR="XXXXXXXXX"          # [required] path to save the analysis results
+export OVERWRITE_ANALYSIS_DATA="1"            # [optional] default is "0" (not overwrite)
+export ENVIRON_SAVE_DIR="XXXXXXXXX"           # [optional] whether to save the system environs for debugging
+```
+
+Launch the script as usual:
+
+```bash
+python XXXXXXXXX.py
 ```

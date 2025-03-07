@@ -73,7 +73,7 @@ def compress_tensors(tensor_list, dim=0):
 
 def save_analysis_cache_single_batch(save_static=True, reset_cache=True, compress=False):
     """Save analysis cache for a single batch."""
-    if ANALYSIS_ENABLED:  # 🔍
+    if ANALYSIS_ENABLED:
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{PID}")
             save_file = os.path.join(save_dir, f"{ANALYSIS_CACHE_BATCH_ID}.pt")
@@ -117,7 +117,7 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True, compres
 
 def save_analysis_cache(compress=False):
     """Save all analysis cache at once."""
-    if ANALYSIS_ENABLED:  # 🔍
+    if ANALYSIS_ENABLED:
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "dynamic")
             save_file = os.path.join(save_dir, f"{PID}.pt")
