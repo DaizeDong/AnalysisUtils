@@ -2,7 +2,8 @@ name: Auto Update Submodule
 
 on:
   repository_dispatch:
-    types: [update_submodule]
+    types: [ update_submodule ]
+  workflow_dispatch:
 
 jobs:
   update-submodule:
@@ -14,11 +15,16 @@ jobs:
           submodules: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Configure Git User
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Force Update Submodule to Latest Commit
         run: |
           git submodule init
           git submodule update --remote --force
           git submodule foreach --recursive bash -c 'git fetch origin main && git reset --hard origin/main'
           git add .
-          git commit -m "($(date +"%Y-%m-%d %H:%M:%S")) Auto-update submodules" || echo "No changes to commit"
+          git commit -m "Auto-update submodules ($(date +"%Y-%m-%d %H:%M:%S"))" || echo "No changes to commit"
           git push origin main || echo "No changes to push"
