@@ -31,7 +31,7 @@ jobs:
           '
           git add .
 
-          submodule_changes=$(git submodule foreach --recursive 'echo $name: $(git rev-parse HEAD)')
+          submodule_changes=$(git submodule foreach --recursive --quiet 'echo $name: $(git rev-parse HEAD)' | grep -v "Entering ")
           
           if ! git diff --cached --quiet; then
             echo -e "Auto-update submodules ($(date +"%Y-%m-%d %H:%M:%S"))\n\n$submodule_changes" > commit_message.txt
