@@ -11,8 +11,6 @@ from .basic_utils.operations.operation_tensor import concat_tensors
 
 ANALYSIS_CACHE_DYNAMIC = []  # used for recording dynamic information like model inputs across different batches
 ANALYSIS_CACHE_STATIC = {}  # used for recording static information like model weights
-ANALYSIS_CACHE_BATCH_ID = 0  # used for saving cache at sample level (save after each forward)
-ANALYSIS_TOKEN_NUM = 0  # used for recording the total number of tokens processed during analysis
 
 if ANALYSIS_SAVE_DIR is not None and OVERWRITE_ANALYSIS_DATA:
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic"), suppress_errors=True)  # remove old results
@@ -71,12 +69,12 @@ def compress_tensors(tensor_list, dim=0):
         yield concat_tensors(buffer, dim=dim, auto_reshape=True, strict=False)  # remaining `size=1` tensors
 
 
-def save_analysis_cache_single_batch(save_static=True, reset_cache=True, compress=False):
+def save_analysis_cache_single_batch(batch_id, save_static=True, reset_cache=True, compress=False):
     """Save analysis cache for a single batch."""
     if ANALYSIS_ENABLED:
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{PID}")
-            save_file = os.path.join(save_dir, f"{ANALYSIS_CACHE_BATCH_ID}.pt")
+            save_file = os.path.join(save_dir, f"{batch_id}.pt")
             create_dir(save_dir, suppress_errors=True)
             if compress:
                 compressed_tensors = [v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)]
@@ -94,7 +92,7 @@ def save_analysis_cache_single_batch(save_static=True, reset_cache=True, compres
         if save_static:
             if len(ANALYSIS_CACHE_STATIC) > 0:
                 save_dir = os.path.join(ANALYSIS_SAVE_DIR, "static", f"{PID}")
-                save_file = os.path.join(save_dir, f"{ANALYSIS_CACHE_BATCH_ID}.pt")
+                save_file = os.path.join(save_dir, f"{batch_id}.pt")
                 create_dir(save_dir, suppress_errors=True)
                 torch.save(ANALYSIS_CACHE_STATIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                 if reset_cache:
