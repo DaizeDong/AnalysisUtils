@@ -1,4 +1,5 @@
 import os
+import threading
 from datetime import datetime
 from pickle import HIGHEST_PROTOCOL
 
@@ -11,6 +12,7 @@ from .basic_utils.operations.operation_tensor import concat_tensors
 
 ANALYSIS_CACHE_DYNAMIC = []  # used for recording dynamic information like model inputs across different batches
 ANALYSIS_CACHE_STATIC = {}  # used for recording static information like model weights
+ANALYSIS_CACHE_LOCK = threading.RLock()
 
 if ANALYSIS_SAVE_DIR is not None and OVERWRITE_ANALYSIS_DATA:
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic"), suppress_errors=True)  # remove old results
