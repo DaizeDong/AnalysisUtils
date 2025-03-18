@@ -6,7 +6,7 @@ from pickle import HIGHEST_PROTOCOL
 import torch
 from tqdm import tqdm
 
-from .analysis_env import ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, ANALYSIS_TYPE, OVERWRITE_ANALYSIS_DATA, PID
+from .analysis_env import ALL_ANALYSIS_ENVS, ANALYSIS_ARGS, ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, OVERWRITE_ANALYSIS_DATA, PID
 from .basic_utils.io import create_dir, delete_file_or_dir, save_json
 from .basic_utils.operations.operation_tensor import concat_tensors
 
@@ -106,8 +106,8 @@ def save_analysis_cache_single_batch(batch_id, save_static=True, save_info=True,
         if save_info:
             save_json(
                 {
-                    "ANALYSIS_TYPE": ANALYSIS_TYPE,
-                    "ANALYSIS_SAVE_DIR": ANALYSIS_SAVE_DIR,
+                    "ALL_ANALYSIS_ENVS": ALL_ANALYSIS_ENVS,
+                    "ANALYSIS_ARGS": ANALYSIS_ARGS,
                     "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 },
                 os.path.join(ANALYSIS_SAVE_DIR, "info.json"),
@@ -145,8 +145,8 @@ def save_analysis_cache(compress=False):
 
         save_json(
             {
-                "ANALYSIS_TYPE": ANALYSIS_TYPE,
-                "ANALYSIS_SAVE_DIR": ANALYSIS_SAVE_DIR,
+                "ALL_ANALYSIS_ENVS": ALL_ANALYSIS_ENVS,
+                "ANALYSIS_ARGS": ANALYSIS_ARGS,
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             },
             os.path.join(ANALYSIS_SAVE_DIR, "info.json"),

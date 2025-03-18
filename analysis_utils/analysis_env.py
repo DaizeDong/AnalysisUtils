@@ -1,7 +1,7 @@
 import contextlib
 import os
 
-from analysis_utils.basic_utils.operations.operation_string import str2dict
+from .basic_utils.operations.operation_string import str2dict
 
 # system environments
 PID = os.getpid()
