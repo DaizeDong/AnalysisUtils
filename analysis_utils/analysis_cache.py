@@ -74,6 +74,7 @@ def compress_tensors(tensor_list, dim=0):
 def save_analysis_cache_single_batch(batch_id, save_static=True, save_info=True, reset_cache=True, compress=False):
     """Save analysis cache for a single batch."""
     if ANALYSIS_ENABLED:
+        # dynamic cache
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "dynamic", f"{PID}")
             save_file = os.path.join(save_dir, f"{batch_id}.pt")
@@ -91,6 +92,7 @@ def save_analysis_cache_single_batch(batch_id, save_static=True, save_info=True,
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty.")
 
+        # static cache
         if save_static:
             if len(ANALYSIS_CACHE_STATIC) > 0:
                 save_dir = os.path.join(ANALYSIS_SAVE_DIR, "static", f"{PID}")
@@ -103,22 +105,27 @@ def save_analysis_cache_single_batch(batch_id, save_static=True, save_info=True,
             else:
                 print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_STATIC` as it is empty.")
 
+        # running information
         if save_info:
+            save_dir = os.path.join(ANALYSIS_SAVE_DIR, "info")
+            save_file = os.path.join(save_dir, f"{PID}.pt")
+            create_dir(save_dir, suppress_errors=True)
             save_json(
                 {
                     "ALL_ANALYSIS_ENVS": ALL_ANALYSIS_ENVS,
                     "ANALYSIS_ARGS": ANALYSIS_ARGS,
                     "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 },
-                os.path.join(ANALYSIS_SAVE_DIR, "info.json"),
+                os.path.join(save_file),
                 indent=4,
             )
-            print(f"[{PID}] Analysis json successfully saved to {os.path.join(ANALYSIS_SAVE_DIR, 'info.json')}.")
+            print(f"[{PID}] Information json file successfully saved to {save_file}.")
 
 
 def save_analysis_cache(compress=False):
     """Save all analysis cache at once."""
     if ANALYSIS_ENABLED:
+        # dynamic cache
         if len(ANALYSIS_CACHE_DYNAMIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "dynamic")
             save_file = os.path.join(save_dir, f"{PID}.pt")
@@ -134,6 +141,7 @@ def save_analysis_cache(compress=False):
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty.")
 
+        # static cache
         if len(ANALYSIS_CACHE_STATIC) > 0:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "static")
             save_file = os.path.join(save_dir, f"{PID}.pt")
@@ -143,13 +151,17 @@ def save_analysis_cache(compress=False):
         else:
             print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_STATIC` as it is empty.")
 
+        # running information
+        save_dir = os.path.join(ANALYSIS_SAVE_DIR, "info")
+        save_file = os.path.join(save_dir, f"{PID}.pt")
+        create_dir(save_dir, suppress_errors=True)
         save_json(
             {
                 "ALL_ANALYSIS_ENVS": ALL_ANALYSIS_ENVS,
                 "ANALYSIS_ARGS": ANALYSIS_ARGS,
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             },
-            os.path.join(ANALYSIS_SAVE_DIR, "info.json"),
+            os.path.join(save_file),
             indent=4,
         )
-        print(f"[{PID}] Analysis json successfully saved to {os.path.join(ANALYSIS_SAVE_DIR, 'info.json')}.")
+        print(f"[{PID}] Information json file successfully saved to {save_file}.")
