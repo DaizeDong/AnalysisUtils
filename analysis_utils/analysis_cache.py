@@ -17,6 +17,7 @@ ANALYSIS_CACHE_LOCK = threading.RLock()
 if ANALYSIS_SAVE_DIR is not None and OVERWRITE_ANALYSIS_DATA:
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic"), suppress_errors=True)  # remove old results
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "static"), suppress_errors=True)  # remove old results
+    delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "info"), suppress_errors=True)  # remove old info
     print(f"[{PID}] Removed old cache results in {ANALYSIS_SAVE_DIR}.")
 
 
@@ -108,7 +109,7 @@ def save_analysis_cache_single_batch(batch_id, save_static=True, save_info=True,
         # running information
         if save_info:
             save_dir = os.path.join(ANALYSIS_SAVE_DIR, "info")
-            save_file = os.path.join(save_dir, f"{PID}.pt")
+            save_file = os.path.join(save_dir, f"{PID}.json")
             create_dir(save_dir, suppress_errors=True)
             save_json(
                 {
@@ -153,7 +154,7 @@ def save_analysis_cache(compress=False):
 
         # running information
         save_dir = os.path.join(ANALYSIS_SAVE_DIR, "info")
-        save_file = os.path.join(save_dir, f"{PID}.pt")
+        save_file = os.path.join(save_dir, f"{PID}.json")
         create_dir(save_dir, suppress_errors=True)
         save_json(
             {
