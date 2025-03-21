@@ -83,8 +83,9 @@ def save_analysis_cache_single_batch(batch_id, save_static=True, save_info=True,
             if compress and len(ANALYSIS_CACHE_DYNAMIC) > 1:
                 compressed_tensors = [v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)]
                 print(f"[{PID}] Reduced the number of tensors from {len(ANALYSIS_CACHE_DYNAMIC)} to {len(compressed_tensors)} by compression.")
-                torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
-                print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
+                if len(compressed_tensors) > 0:
+                    torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
+                    print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
             else:
                 torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                 print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
@@ -134,8 +135,9 @@ def save_analysis_cache(compress=False):
             if compress and len(ANALYSIS_CACHE_DYNAMIC) > 1:
                 compressed_tensors = [v for v in compress_tensors(ANALYSIS_CACHE_DYNAMIC)]
                 print(f"[{PID}] Reduced the number of tensors from {len(ANALYSIS_CACHE_DYNAMIC)} to {len(compressed_tensors)} by compression.")
-                torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
-                print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
+                if len(compressed_tensors) > 0:
+                    torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
+                    print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
             else:
                 torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                 print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
