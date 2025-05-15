@@ -20,6 +20,27 @@ incorporate the analysis module into the code:
 - Record information during forward.
 - Save results when finished.
 
+### Modify
+
+Here is an example of how to modify your code to include the analysis module.
+
+#### Original Code
+
+```python
+import torch
+
+# load model
+model = torch.nn.Linear(128, 256, device="cuda")
+model.eval()
+
+# forward inputs
+for _ in range(100):
+    inputs = torch.randn(1, 128, device="cuda")
+    outputs = model(inputs)
+```
+
+#### Modified Code
+
 ```python
 import torch
 from analysis_utils import ANALYSIS_TYPE, ANALYSIS_CACHE_STATIC, ANALYSIS_CACHE_DYNAMIC, save_analysis_cache
@@ -47,6 +68,8 @@ for _ in range(100):
 # save results to `ANALYSIS_SAVE_DIR`
 save_analysis_cache(compress=True)
 ```
+
+### Launch
 
 Set system variables to activate the analysis module before launching:
 
