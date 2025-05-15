@@ -1,9 +1,8 @@
 import os
 import threading
+import torch
 from datetime import datetime
 from pickle import HIGHEST_PROTOCOL
-
-import torch
 from tqdm import tqdm
 
 from .analysis_env import ALL_ANALYSIS_ENVS, ANALYSIS_ARGS, ANALYSIS_ENABLED, ANALYSIS_SAVE_DIR, OVERWRITE_ANALYSIS_DATA, PID
@@ -12,7 +11,7 @@ from .basic_utils.operations.operation_tensor import concat_tensors
 
 ANALYSIS_CACHE_DYNAMIC = []  # used for recording dynamic information like model inputs across different batches
 ANALYSIS_CACHE_STATIC = {}  # used for recording static information like model weights
-ANALYSIS_CACHE_LOCK = threading.RLock()
+ANALYSIS_CACHE_LOCK = threading.RLock()  # the GLOBAL lock for cache modification in case of async situations (use with statement to acquire the lock)
 
 if ANALYSIS_SAVE_DIR is not None and OVERWRITE_ANALYSIS_DATA:
     delete_file_or_dir(os.path.join(ANALYSIS_SAVE_DIR, "dynamic"), suppress_errors=True)  # remove old results
