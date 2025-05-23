@@ -45,8 +45,13 @@ def compress_tensors(tensor_list, dim=0):
         elif isinstance(value, torch.Tensor):
             return value.size(dim)
         elif isinstance(value, dict):
-            return get_tensor_size(next(iter(value.values())), dim)
+            vals = list(value.values())
+            if not vals:
+                return 0
+            return get_tensor_size(vals[0], dim)
         elif isinstance(value, list):
+            if not value:
+                return 0
             return get_tensor_size(value[0], dim)
         else:  # unsupported types
             return -1
@@ -54,10 +59,16 @@ def compress_tensors(tensor_list, dim=0):
     buffer = []
 
     for element in tqdm(tensor_list, desc="Compressing tensors"):
-        if get_tensor_size(element, dim) <= 0:
+        try:
+            size = get_tensor_size(element, dim)
+        except Exception as e:
+            print(f"Warning: Skipped bad element in compress_tensors due to exception: {e}")
             continue
 
-        if get_tensor_size(element, dim) == 1:
+        if size <= 0:
+            continue
+
+        if size == 1:
             buffer.append(element)
         else:  # meet a tensor with size > 1
             # yield the buffer
@@ -85,6 +96,8 @@ def save_analysis_cache_single_batch(batch_id, save_static=True, save_info=True,
                 if len(compressed_tensors) > 0:
                     torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                     print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
+                else:
+                    print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty after compression.")
             else:
                 torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                 print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
@@ -137,6 +150,8 @@ def save_analysis_cache(compress=False):
                 if len(compressed_tensors) > 0:
                     torch.save(compressed_tensors, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                     print(f"[{PID}] Total {len(compressed_tensors)} dynamic cache successfully saved to {save_file}.")
+                else:
+                    print(f"[{PID}] Skip saving the `ANALYSIS_CACHE_DYNAMIC` as it is empty after compression.")
             else:
                 torch.save(ANALYSIS_CACHE_DYNAMIC, save_file, pickle_protocol=HIGHEST_PROTOCOL)
                 print(f"[{PID}] Total {len(ANALYSIS_CACHE_DYNAMIC)} dynamic cache successfully saved to {save_file}.")
