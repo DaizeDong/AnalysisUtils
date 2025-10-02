@@ -32,6 +32,10 @@ if os.environ.get("ANALYSIS_ARGS") is not None:
 
 print(f"[{PID}] ANALYSIS_ARGS: {ANALYSIS_ARGS}")
 
+# debug mode
+ANALYSIS_DEBUG = (os.environ.get("ANALYSIS_DEBUG", "0") == "1")
+print(f"[{PID}] ANALYSIS_DEBUG: {ANALYSIS_DEBUG}")
+
 # analysis status flag
 ANALYSIS_ENABLED = ANALYSIS_TYPE is not None and ANALYSIS_SAVE_DIR is not None
 print(f"[{PID}] ANALYSIS_ENABLED: {ANALYSIS_ENABLED}")
